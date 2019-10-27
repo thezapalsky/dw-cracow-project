@@ -1,5 +1,5 @@
 
-
+import os, glob
 from google.cloud import bigquery
 
 client = bigquery.Client.from_service_account_json('dataworkshop/dw-cracow-project/data/politics/secrets/dw-project-politics-bq-credentials.json')
@@ -25,10 +25,26 @@ def load_bq_table_from_csv(client, dataset_id, table_id, filename, skip_leading_
 
     return job
 
+
+
+def load_bq_table_from_csv_glob(client, dataset_id, table_id, glob_path, skip_leading_rows=0):
+    for csv_file in glob.glob(glob_path):
+        try:
+            load_bq_table_from_csv(
+                client, 
+                filename = csv_file, 
+                dataset_id = dataset_id, 
+                table_id = table_id
+                )
+        except:
+            print(f'ERROR: {csv_file}')
+
+
 #if __name__ == 'main':
-load_bq_table_from_csv(
-    client, 
-    filename = '/Users/piotr.jodko/Google Drive/currents/votings/voting-8_1_3.csv', 
-    dataset_id = 'politics', 
-    table_id = 'votings'
-    )
+load_bq_table_from_csv_glob(
+    client,
+    glob_path='/Users/piotr.jodko/Google Drive/currents/votings/*.csv',
+    dataset_id='politics',
+    table_id='votes_raw_raw',
+    skip_leading_rows=1
+)
